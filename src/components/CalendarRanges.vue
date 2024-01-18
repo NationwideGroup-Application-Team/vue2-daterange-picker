@@ -1,5 +1,5 @@
 <template>
-    <div class="ranges">
+    <div class="ranges" :class="classes" :style="styles">
         <ul v-if="ranges">
             <li
                     v-for="range in listedRanges"
@@ -32,6 +32,16 @@
       selected: Object,
       localeData: Object,
       alwaysShowCalendars: Boolean,
+      classes: {
+        type: [String, Array, Object],
+        required: false,
+        default: ()=>[]
+      },
+      styles: {
+        type: [String, Object],
+        required: false,
+        default: ()=>{}
+      }
     },
     data () {
       return {

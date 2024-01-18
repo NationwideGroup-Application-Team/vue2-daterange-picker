@@ -1,7 +1,10 @@
 <template>
-  <div class="vue-daterange-picker" :class="{ inline: opens === 'inline' }">
+  <div class="vue-daterange-picker"
+       :class="{ inline: opens === 'inline', ...rootClasses }"
+       :style="rootStyle">
     <div
       :class="controlContainerClass"
+      :style="controlContainerStyle"
       @click="onClickPicker"
       ref="toggle"
     >
@@ -28,7 +31,8 @@
     <transition name="slide-fade" mode="out-in">
       <div
         class="daterangepicker ltr"
-        :class="pickerStyles"
+        :class="pickerClasses"
+        :style="pickerStyle"
         v-if="open || opens === 'inline'"
         v-append-to-body
         ref="dropdown"
@@ -71,6 +75,8 @@
               :locale-data="locale"
               :ranges="ranges"
               :selected="{ startDate: start, endDate: end }"
+              :styles="rangeStyle"
+              :classes="rangeClass"
             ></calendar-ranges>
           </slot>
 
@@ -194,6 +200,28 @@ import CalendarTime from './CalendarTime'
 import CalendarRanges from './CalendarRanges'
 import {getDateUtil} from './util'
 import appendToBody from '../directives/appendToBody';
+
+function convertToClassObject(classString) {
+  if (typeof classString === 'object') {
+    return classString;
+  }
+
+  const returnVal = {};
+  let classNameList = [];
+
+  if (typeof classString === 'string') {
+    classNameList = classString.split(/ /);
+  }
+  else if (Array.isArray(classString)) {
+    classNameList = classString;
+  }
+
+  for (const className of classNameList) {
+    returnVal[className] = true;
+  }
+
+  return returnVal;
+}
 
 export default {
   inheritAttrs: false,
@@ -383,12 +411,45 @@ export default {
       type: Boolean,
       default: false,
     },
+    rootClass: {
+      type: [Object, Array, String],
+      default: ()=>[]
+    },
+    rootStyle: {
+      type: [Object, String],
+      default: ()=>{}
+    },
+    pickerClass: {
+      type: [Object, Array, String],
+      default: ()=>[]
+    },
+    pickerStyle: {
+      type: [Object, String],
+      default: ()=>{}
+    },
+    rangeClass: {
+      type: [String, Array, Object],
+      required: false,
+      default: ()=>[]
+    },
+    rangeStyle: {
+      type: [String, Object],
+      required: false,
+      default: ()=>{}
+    },
     /**
      * Class of html picker control container
      */
     controlContainerClass: {
       type: [Object, String],
       default: 'form-control reportrange-text'
+    },
+    /**
+     * Class of html picker control container
+     */
+    controlContainerStyle: {
+      type: [Object, String],
+      default: ''
     },
     /**
      * Append the dropdown element to the end of the body
@@ -725,6 +786,12 @@ export default {
     }
   },
   computed: {
+    rootClasses () {
+      return convertToClassObject(this.rootClass);
+    },
+    additionalPickerClasses () {
+      return convertToClassObject(this.pickerClass);
+    },
     showRanges () {
       return this.ranges !== false && !this.readonly
     },
@@ -754,7 +821,7 @@ export default {
     max () {
       return this.maxDate ? new Date(this.maxDate) : null
     },
-    pickerStyles () {
+    pickerClasses () {
       return {
         'show-calendar': this.open || this.opens === 'inline',
         'show-ranges': this.showRanges,
@@ -762,7 +829,8 @@ export default {
         single: this.singleDatePicker,
         ['opens' + this.opens]: true,
         linked: this.linkedCalendars,
-        'hide-calendars': !this.showCalendars
+        'hide-calendars': !this.showCalendars,
+        ...this.additionalPickerClasses,
       }
     },
     isClear () {
