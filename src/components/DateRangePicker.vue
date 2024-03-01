@@ -93,6 +93,7 @@
                           :start="start" :end="end"
                           :minDate="min" :maxDate="max"
                           :show-dropdowns="showDropdowns"
+                          :show-prior-years="availablePriorYears"
 
                           @change-month="changeLeftMonth"
                           :date-format="dateFormatFn"
@@ -125,6 +126,7 @@
                           :start="start" :end="end"
                           :minDate="min" :maxDate="max"
                           :show-dropdowns="showDropdowns"
+                          :show-prior-years="availablePriorYears"
 
                           @change-month="changeRightMonth"
                           :date-format="dateFormatFn"
@@ -343,6 +345,11 @@ export default {
       type: [Object],
       default: null,
       required: true
+    },
+    availablePriorYears: {
+      type: [String,Number],
+      require: false,
+      default: 5
     },
     /**
      * You can set this to false in order to hide the ranges selection. Otherwise it is an object with key/value. See below
@@ -749,6 +756,8 @@ export default {
 
       if (this.autoApply)
         this.clickedApply()
+
+      this.$emit('clickRange', value);
     },
     onUpdateStartTime (value) {
       let start = new Date(this.start);

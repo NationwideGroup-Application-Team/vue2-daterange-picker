@@ -12,7 +12,12 @@
           <select v-model="month" class="monthselect col">
             <option v-for="(m, idx) in months" :key="idx" :value="m.value + 1" :disabled="!m.enabled">{{ m.label }}</option>
           </select>
-          <input ref="yearSelect" type="number" v-model="year" @blur="checkYear" class="yearselect col"/>
+          <select v-model="year" class="yearselect col" >
+            <option v-for="(year, idx) in years" ref="yearSelect"
+                    :key="idx"
+                    :value="year"
+            >{{ year }}</option>
+          </select>
         </div>
       </th>
       <th v-else :colspan="showWeekNumbers ? 6 : 5" class="month">{{ monthName }} {{ year }}</th>
@@ -72,6 +77,11 @@ export default {
     dateFormat: {
       type: Function,
       default: null
+    },
+    showPriorYears: {
+      type: [String,Number],
+      required: false,
+      default: 5
     }
   },
   data () {
@@ -208,6 +218,17 @@ export default {
           (!this.maxDate || (this.maxDate >= new Date(this.year, idx, 1))) &&
           (!this.minDate || (this.minDate <= new Date(this.year, idx + 1, 0)))
       }));
+    },
+    years() {
+      const years = [];
+      const thisYear = (new Date()).getFullYear();
+
+
+      for (let year = thisYear; year >= thisYear - 5; year--) {
+        years.push(year);
+      }
+
+      return years;
     },
     locale () {
       return this.$dateUtil.localeData(this.localeData)
